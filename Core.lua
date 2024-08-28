@@ -6,85 +6,700 @@ frame:RegisterEvent("PLAYER_LOGIN")
 frame:SetScript("OnEvent", function(self, event, ...)
     ZHIYE=select(2, GetSpecializationInfo(GetSpecialization()))
     print(ZHIYE)
-    -- 获取职业的技能信息
-    
-
-
-    local trinketSpellNames = GetTrinketSpellNames()
-    for _, spellName in ipairs(trinketSpellNames) do
-        print("饰品主动技能名字:", spellName)
-    end
-    
-    
-    
+    qxey()
+    G_zong=true
+    SLASH_KOKOI1 = "/kokoi"
 
     local className, classFileName, classID = UnitClass("player")
     local function GetClassSpells(classID)
         local spells = {}
-        for i = 1, GetNumSpellTabs() do
-            local name, texture, offset, numSpells = GetSpellTabInfo(i)
-            if name==className or name==ZHIYE then
-                print("标签名称:", name)
-                for j = 1, numSpells do
-                    local spellID = offset + j
-                    --print(spellID)
-                    local spellName = GetSpellBookItemName(spellID, BOOKTYPE_SPELL)
-                    local spellDescription = GetSpellDescription(spellID)
+        Wupin1 = GetItemInfo(GetInventoryItemID("player", 13))
+        Wupin2 = GetItemInfo(GetInventoryItemID("player", 14))
+        table.insert(spells, Wupin1)
+        table.insert(spells, Wupin2)
+
+        for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do----------1是技能位置 1=综合 2=通用技能 3=专精技能
+            local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(i)
+            local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
+            for j = offset + 1, offset + numSlots do
+                local name, subName = C_SpellBook.GetSpellBookItemName(j, Enum.SpellBookSpellBank.Player)
+                --local spellID = select(7, GetSpellInfo(name))
+
+                local _, _, _, _, minRange, maxRange, spellID = GetSpellInfo(name)
+                if spellID then
+    
                     
-                    local jnid=GetSpellIDByName(spellName)
-                    --local spellDescription = GetSpellDescription(jnid)---法术描述
-                   -- print(spellName,"法术描述:", spellDescription)
-                   
-                
-                   
-                   local isPassive = C_Spell.IsSpellPassive(jnid)
-                   
-                   if isPassive then
-                       --print("技能是被动技能")
-                   else
-                        --print(spellName)
-                        table.insert(spells, spellName)
-                   end
-                   
-                    --print("结束")
-                   
+                    --print("检查法术是否为被动:", spellName, jnid)
+                    local isPassive = C_Spell.IsSpellPassive(spellID)
+                    
+        
+                    --print("是否为被动:", isPassive)
+                    if isPassive==false then
+                        if i == 2  or i == 3 then
+                            table.insert(spells, name)
+                        end
+                        
+                        --print("不是被动:", spellName)
+                     
+                            
+                     end
+    
+    
+                    
                 end
+                
             end
-           
         end
+
+        print("获取到的技能数量:", #spells)
         return spells
     end
     
     -- 打印所有技能
-    local spells = GetClassSpells(classID)
-    for _, spell in ipairs(spells) do
-     --rint(spell)
-    end
     
+    Iss=0
+    Spells = GetClassSpells(classID)
+    for _, spell in ipairs(Spells) do
+        Iss=Iss+1
+        
+        DK(spell,Iss)---设置按键
+        --print(Iss,spell)
+        --print(spell)
+    end
+    Iss=0
 end)
 
 
+SlashCmdList["KOKOI"] = function()
+    G_zong= not G_zong
+    if G_zong==true then
+        print("⭐输出开启")
+    else
+        print("⭐输出关闭")
+    end
+    
+end
+
+local function IsEditBoxActive()---------------控件
+    local focus = GetCurrentKeyBoardFocus()
+    if focus and focus:IsObjectType("EditBox") then
+        return true
+    else
+        return false
+    end
+end
+
+-- 示例用法
+
+
+
+
 local frame = CreateFrame("Frame", "MyColorBlockFrame", UIParent)
-frame:SetSize(5, 5) -- 设置色块的大小
-frame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 0, 1) -- 设置色块的位置 BOTTOMLEFT TOPLEFT--下
+frame:SetSize(2,2) -- 设置色块的大小
+frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, 1) -- 设置色块的位置 BOTTOMLEFT TOPLEFT--下
 -- 设置色块的背景颜色
 frame.texture = frame:CreateTexture(nil, "BACKGROUND")
 frame.texture:SetAllPoints(frame)
 
+function panduanwenben(name, wenben)
+    return string.find(name, wenben) ~= nil
+end
 
---local frame2 = CreateFrame("Frame", "MyColorBlockFrame2", UIParent)
---frame2:SetSize(2, 2) -- 设置色块的大小
---frame2:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT",0, 2.5) -- 设置色块的位置 BOTTOMLEFT TOPLEFT--上
--- 设置色块的背景颜色
---frame2.texture = frame2:CreateTexture(nil, "BACKGROUND")
---frame2.texture:SetAllPoints(frame2)
 
---local frame3 = CreateFrame("Frame", "MyColorBlockFrame3", UIParent)
---frame3:SetSize(2, 1) -- 设置色块的大小 2 1
---frame3:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT",0, 1) -- 设置色块的位置 BOTTOMLEFT TOPLEFT--上
--- 设置色块的背景颜色
---frame3.texture = frame3:CreateTexture(nil, "BACKGROUND")
---frame3.texture:SetAllPoints(frame3)
+
+
+
+function isMacroNameUnique(macroName)
+    local macroCount = GetNumMacros() 
+    for i = 1, macroCount do
+        local name, icon, body = GetMacroInfo(i)
+        --print("宏命令:", name, i)
+        
+        if name == macroName then
+            return true
+        end
+    end
+    
+    return false
+end
+
+
+
+
+
+function yanse(key) 
+
+    if key == 1 then----ff0000
+        frame.texture:SetColorTexture(1, 0, 0, 1)
+    
+    elseif key == 2 then----ff0101
+        frame.texture:SetColorTexture(1, 0.01, 0.01, 1)
+    
+    elseif key == 3 then----ff0202
+        frame.texture:SetColorTexture(1, 0.02, 0.02, 1)
+    
+    elseif key == 4 then----ff0303
+        frame.texture:SetColorTexture(1, 0.03, 0.03, 1)
+    
+    elseif key == 5 then----ff0404
+        frame.texture:SetColorTexture(1, 0.04, 0.04, 1)
+    
+    elseif key == 6 then----ff0505
+        frame.texture:SetColorTexture(1, 0.05, 0.05, 1)
+    
+    elseif key == 7 then----ff0606
+        frame.texture:SetColorTexture(1, 0.06, 0.06, 1)
+    
+    elseif key == 8 then----ff0707
+        frame.texture:SetColorTexture(1, 0.07, 0.07, 1)
+    
+    elseif key == 9 then----ff0808
+        frame.texture:SetColorTexture(1, 0.08, 0.08, 1)
+    
+    elseif key == 10 then----ff0909
+        frame.texture:SetColorTexture(1, 0.09, 0.09, 1)
+    
+    elseif key == 11 then----ff0a0a
+        frame.texture:SetColorTexture(1, 0.1, 0.1, 1)
+    
+    elseif key == 12 then----ff0b0b
+        frame.texture:SetColorTexture(1, 0.11, 0.11, 1)
+    
+    elseif key == 13 then----ff0c0c
+        frame.texture:SetColorTexture(1, 0.12, 0.12, 1)
+    
+    elseif key == 14 then----ff0d0d
+        frame.texture:SetColorTexture(1, 0.13, 0.13, 1)
+    
+    elseif key == 15 then----ff0e0e
+        frame.texture:SetColorTexture(1, 0.14, 0.14, 1)
+    
+    elseif key == 16 then----ff0f0f
+        frame.texture:SetColorTexture(1, 0.15, 0.15, 1)
+    
+    elseif key == 17 then----ff1010
+        frame.texture:SetColorTexture(1, 0.16, 0.16, 1)
+    
+    elseif key == 18 then----ff1111
+        frame.texture:SetColorTexture(1, 0.17, 0.17, 1)
+    
+    elseif key == 19 then----ff1212
+        frame.texture:SetColorTexture(1, 0.18, 0.18, 1)
+    
+    elseif key == 20 then----ff1313
+        frame.texture:SetColorTexture(1, 0.19, 0.19, 1)
+    
+    elseif key == 21 then----ff1414
+        frame.texture:SetColorTexture(1, 0.2, 0.2, 1)
+    
+    elseif key == 22 then----ff1515
+        frame.texture:SetColorTexture(1, 0.21, 0.21, 1)
+    
+    elseif key == 23 then----ff1616
+        frame.texture:SetColorTexture(1, 0.22, 0.22, 1)
+    
+    elseif key == 24 then----ff1717
+        frame.texture:SetColorTexture(1, 0.23, 0.23, 1)
+    
+    elseif key == 25 then----ff1818
+        frame.texture:SetColorTexture(1, 0.24, 0.24, 1)
+    
+    elseif key == 26 then----ff1919
+        frame.texture:SetColorTexture(1, 0.25, 0.25, 1)
+    
+    elseif key == 27 then----ff1a1a
+        frame.texture:SetColorTexture(1, 0.26, 0.26, 1)
+    
+    elseif key == 28 then----ff1b1b
+        frame.texture:SetColorTexture(1, 0.27, 0.27, 1)
+    
+    elseif key == 29 then----ff1c1c
+        frame.texture:SetColorTexture(1, 0.28, 0.28, 1)
+    
+    elseif key == 30 then----ff1d1d
+        frame.texture:SetColorTexture(1, 0.29, 0.29, 1)
+    
+    elseif key == 31 then----ff1e1e
+        frame.texture:SetColorTexture(1, 0.3, 0.3, 1)
+    
+    elseif key == 32 then----ff1f1f
+        frame.texture:SetColorTexture(1, 0.31, 0.31, 1)
+    
+    elseif key == 33 then----ff2020
+        frame.texture:SetColorTexture(1, 0.32, 0.32, 1)
+    
+    elseif key == 34 then----ff2121
+        frame.texture:SetColorTexture(1, 0.33, 0.33, 1)
+    
+    elseif key == 35 then----ff2222
+        frame.texture:SetColorTexture(1, 0.34, 0.34, 1)
+    
+    elseif key == 36 then----ff2323
+        frame.texture:SetColorTexture(1, 0.35, 0.35, 1)
+    
+    elseif key == 37 then----ff2424
+        frame.texture:SetColorTexture(1, 0.36, 0.36, 1)
+    
+    elseif key == 38 then----ff2525
+        frame.texture:SetColorTexture(1, 0.37, 0.37, 1)
+    
+    elseif key == 39 then----ff2626
+        frame.texture:SetColorTexture(1, 0.38, 0.38, 1)
+    
+    elseif key == 40 then----ff2727
+        frame.texture:SetColorTexture(1, 0.39, 0.39, 1)
+    
+    elseif key == 41 then----ff2828
+        frame.texture:SetColorTexture(1, 0.4, 0.4, 1)
+    
+    elseif key == 42 then----ff2929
+        frame.texture:SetColorTexture(1, 0.41, 0.41, 1)
+    end
+    
+end
+
+
+local function printBindingResult(success, key, spellName)
+    if success then
+        --print("绑定成功:", key, spellName)
+    else
+        print("绑定失败:", key, spellName)
+    end
+end
+
+local function bangdinghong(macroCommand, buttonName, keyBinding)
+    local button = CreateFrame("Button", buttonName, UIParent, "SecureActionButtonTemplate") -- 创建按钮
+    button:SetAttribute("type", "macro") -- 设置按钮类型为宏
+    button:SetAttribute("macrotext", macroCommand) -- 设置宏命令
+    SetBindingClick(keyBinding, buttonName) -- 绑定按键到按钮
+
+    -- 示例调用
+    --bangdinghong("/cast [@cursor] 地缚图腾", "TempMacroButton", "CTRL-SHIFT-5")
+end
+
+
+
+
+function DK(name,int)---------------------------SHIFT绑定不能用得别的按键在前面
+    -- 冰霜专精技能绑定
+    
+    --name = "SPELL " .. name
+    local macroCommand = "/cast [@cursor] ".. name--宏代码
+    local buttonName = name----宏名字
+
+    if name==Wupin1 then
+        print("设置物品按键：",Wupin1)
+        local buttonName = "shipin1"
+        local macroCommand = "/use 13"
+        local keyBinding = "CTRL-SHIFT-F1"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+        return
+        
+    end
+
+    if name==Wupin2 then
+        print("设置物品按键：",Wupin2)
+        local buttonName = "shipin2"
+        local macroCommand = "/use 14"
+        local keyBinding = "CTRL-SHIFT-F2"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+        return
+        
+    end
+
+        
+    if int == 1 then
+        local keyBinding = "ALT-CTRL-SHIFT-1"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+
+    elseif int == 2 then
+        local keyBinding = "ALT-CTRL-SHIFT-2"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+        
+    elseif int == 3 then
+        local keyBinding = "ALT-CTRL-SHIFT-3"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+
+    elseif int == 4 then
+        local keyBinding = "ALT-CTRL-SHIFT-4"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+
+    elseif int == 5 then
+        local keyBinding = "ALT-CTRL-SHIFT-5"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+
+    elseif int == 6 then
+        local keyBinding = "ALT-CTRL-SHIFT-6"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 7 then
+        local keyBinding = "ALT-CTRL-SHIFT-7"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 8 then
+        local keyBinding = "ALT-CTRL-SHIFT-8"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 9 then
+        local keyBinding = "ALT-CTRL-SHIFT-9"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 10 then
+        local keyBinding = "ALT-CTRL-SHIFT-0"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 11 then
+        local keyBinding = "ALT-CTRL-1"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 12 then
+        local keyBinding = "ALT-CTRL-2"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 13 then
+        local keyBinding = "ALT-CTRL-3"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 14 then
+        local keyBinding = "ALT-CTRL-4"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 15 then
+        local keyBinding = "ALT-CTRL-5"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 16 then
+        local keyBinding = "ALT-CTRL-6"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 17 then
+        local keyBinding = "ALT-CTRL-7"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 18 then
+        local keyBinding = "ALT-CTRL-8"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 19 then
+        local keyBinding = "ALT-CTRL-9"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 20 then
+        local keyBinding = "ALT-CTRL-0"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 21 then
+        local keyBinding = "CTRL-SHIFT-1"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 22 then
+        local keyBinding = "CTRL-SHIFT-2"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 23 then
+        local keyBinding = "CTRL-SHIFT-3"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 24 then
+        local keyBinding = "CTRL-SHIFT-4"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 25 then
+        local keyBinding = "CTRL-SHIFT-5"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 26 then
+        local keyBinding = "CTRL-SHIFT-6"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 27 then
+        local keyBinding = "CTRL-SHIFT-7"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 28 then
+        local keyBinding = "CTRL-SHIFT-8"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 29 then
+        local keyBinding = "CTRL-SHIFT-9"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 30 then
+        local keyBinding = "CTRL-SHIFT-0"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 31 then
+        local keyBinding = "ALT-SHIFT-1"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 32 then
+        local keyBinding = "ALT-SHIFT-2"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 33 then
+        local keyBinding = "ALT-SHIFT-3"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 34 then
+        local keyBinding = "ALT-SHIFT-4"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 35 then
+        local keyBinding = "ALT-SHIFT-5"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 36 then
+        local keyBinding = "ALT-SHIFT-6"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 37 then
+        local keyBinding = "ALT-SHIFT-7"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 38 then
+        local keyBinding = "ALT-SHIFT-8"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 39 then
+        local keyBinding = "ALT-SHIFT-9"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    elseif int == 40 then
+        local keyBinding = "ALT-SHIFT-0"
+        bangdinghong(macroCommand,buttonName,keyBinding)
+    end
+
+
+
+
+
+
+    SaveBindings(GetCurrentBindingSet())
+   
+    return
+    
+    
+
+        
+
+    -- 保存绑定
+    --SaveBindings(2)  -- 2 表示角色绑定，1 表示账号绑定
+end
+
+function Pd(name)
+   
+
+   
+    --print(name)
+    
+    local key = GetBindingKey("SPELL "..name)
+    
+    Wupin1 = GetItemInfo(GetInventoryItemID("player", 13))
+    Wupin2 = GetItemInfo(GetInventoryItemID("player", 14))
+    
+    if Wupin1==name then
+        key = "CTRL-SHIFT-F1"
+    elseif  Wupin2==name then
+        key = "CTRL-SHIFT-F2"
+    else 
+        key=nil
+    end
+
+    if key==nil then
+        local action = "CLICK " .. name .. ":LeftButton"
+        local keys = { GetBindingKey(action) }
+        key=table.concat(keys, ", ")
+
+    end
+    
+    
+    
+    
+    --print(key,name)
+
+    --print(ZHIYE)
+
+
+
+    if key == "ALT-CTRL-SHIFT-1" then
+        frame.texture:SetColorTexture(1, 0, 0, 1)--红色
+
+    elseif key == "ALT-CTRL-SHIFT-2" then
+        frame.texture:SetColorTexture(1, 0.01, 0.01, 1)
+
+    elseif key == "ALT-CTRL-SHIFT-3" then
+        frame.texture:SetColorTexture(1, 0.02, 0.02, 1)
+
+    elseif key == "ALT-CTRL-SHIFT-4" then
+       frame.texture:SetColorTexture(1, 0.03, 0.03, 1)
+
+    elseif key == "ALT-CTRL-SHIFT-5" then
+        frame.texture:SetColorTexture(1, 0.04, 0.04, 1)
+
+    elseif key == "ALT-CTRL-SHIFT-6" then
+        frame.texture:SetColorTexture(1, 0.05, 0.05, 1)
+
+    elseif key == "ALT-CTRL-SHIFT-7" then
+        frame.texture:SetColorTexture(1, 0.06, 0.06, 1)
+
+    elseif key == "ALT-CTRL-SHIFT-8" then
+        frame.texture:SetColorTexture(1, 0.07, 0.07, 1)
+
+    elseif key == "ALT-CTRL-SHIFT-9" then
+        frame.texture:SetColorTexture(1, 0.08, 0.08, 1)
+
+    elseif key == "ALT-CTRL-SHIFT-0" then
+        frame.texture:SetColorTexture(1, 0.09, 0.09, 1)
+
+    elseif key == "ALT-CTRL-1" then
+        frame.texture:SetColorTexture(1, 0.1, 0.1, 1)
+
+    elseif key == "ALT-CTRL-2" then
+        frame.texture:SetColorTexture(1, 0.11, 0.11, 1)
+
+    elseif key == "ALT-CTRL-3" then
+        frame.texture:SetColorTexture(1, 0.12, 0.12, 1)
+
+    elseif key == "ALT-CTRL-4" then
+        frame.texture:SetColorTexture(1, 0.13, 0.13, 1)
+
+    elseif key == "ALT-CTRL-5" then
+        frame.texture:SetColorTexture(1, 0.14, 0.14, 1)
+
+    elseif key == "ALT-CTRL-6" then
+        frame.texture:SetColorTexture(1, 0.15, 0.15, 1)
+
+    elseif key == "ALT-CTRL-7" then
+        frame.texture:SetColorTexture(1, 0.16, 0.16, 1)
+
+    elseif key == "ALT-CTRL-8" then
+        frame.texture:SetColorTexture(1, 0.17, 0.17, 1)
+
+    elseif key == "ALT-CTRL-9" then
+        frame.texture:SetColorTexture(1, 0.18, 0.18, 1)
+
+    elseif key == "ALT-CTRL-0" then
+        frame.texture:SetColorTexture(1, 0.19, 0.19, 1)
+
+    elseif key == "CTRL-SHIFT-1" then
+        frame.texture:SetColorTexture(1, 0.2, 0.2, 1)
+
+    elseif key == "CTRL-SHIFT-2" then
+        frame.texture:SetColorTexture(1, 0.21, 0.21, 1)
+
+    elseif key == "CTRL-SHIFT-3" then
+        frame.texture:SetColorTexture(1, 0.22, 0.22, 1)
+
+    elseif key == "CTRL-SHIFT-4" then
+        frame.texture:SetColorTexture(1, 0.23, 0.23, 1)
+
+    elseif key == "CTRL-SHIFT-5" then
+        frame.texture:SetColorTexture(1, 0.24, 0.24, 1)
+
+    elseif key == "CTRL-SHIFT-6" then
+        frame.texture:SetColorTexture(1, 0.25, 0.25, 1)
+
+    elseif key == "CTRL-SHIFT-7" then
+        frame.texture:SetColorTexture(1, 0.26, 0.26, 1)
+
+    elseif key == "CTRL-SHIFT-8" then
+        frame.texture:SetColorTexture(1, 0.27, 0.27, 1)
+
+    elseif key == "CTRL-SHIFT-9" then
+        frame.texture:SetColorTexture(1, 0.28, 0.28, 1)
+
+    elseif key == "CTRL-SHIFT-0" then
+        frame.texture:SetColorTexture(1, 0.29, 0.29, 1)
+
+    elseif key == "ALT-SHIFT-1" then
+        frame.texture:SetColorTexture(1, 0.3, 0.3, 1)
+
+    elseif key == "ALT-SHIFT-2" then
+        frame.texture:SetColorTexture(1, 0.31, 0.31, 1)
+
+    elseif key == "ALT-SHIFT-3" then
+        frame.texture:SetColorTexture(1, 0.32, 0.32, 1)
+
+    elseif key == "ALT-SHIFT-4" then
+        frame.texture:SetColorTexture(1, 0.33, 0.33, 1)
+
+    elseif key == "ALT-SHIFT-5" then
+        frame.texture:SetColorTexture(1, 0.34, 0.34, 1)
+
+    elseif key == "ALT-SHIFT-6" then
+        frame.texture:SetColorTexture(1, 0.35, 0.35, 1)
+
+    elseif key == "ALT-SHIFT-7" then
+        frame.texture:SetColorTexture(1, 0.36, 0.36, 1)
+        
+    elseif key == "ALT-SHIFT-8" then
+        frame.texture:SetColorTexture(1, 0.37, 0.37, 1)
+
+    elseif key == "ALT-SHIFT-9" then
+        frame.texture:SetColorTexture(1, 0.38, 0.38, 1)
+
+    elseif key == "ALT-SHIFT-0" then
+        frame.texture:SetColorTexture(1, 0.39, 0.39, 1)
+
+    elseif key == "CTRL-SHIFT-F1" then
+        frame.texture:SetColorTexture(1, 0.4, 0.4, 1)
+
+    elseif key == "CTRL-SHIFT-F2" then
+        frame.texture:SetColorTexture(1, 0.41, 0.41, 1)
+
+    else
+        frame.texture:SetColorTexture(0.5, 0.5, 0.5, 1)
+    end
+
+
+end
+
+
+
+
+
+-- 定义一个函数来取消绑定并打印结果
+
+function qxey()
+
+    local function unbindKey(key)
+        local success = SetBinding(key, nil)
+        if success then
+            --print("取消绑定成功:", key)
+        else
+            print("取消绑定失败:", key)
+        end
+    end
+    unbindKey("ALT-CTRL-SHIFT-1")
+    unbindKey("ALT-CTRL-SHIFT-2")
+    unbindKey("ALT-CTRL-SHIFT-3")
+    unbindKey("ALT-CTRL-SHIFT-4")
+    unbindKey("ALT-CTRL-SHIFT-5")
+    unbindKey("ALT-CTRL-SHIFT-6")
+    unbindKey("ALT-CTRL-SHIFT-7")
+    unbindKey("ALT-CTRL-SHIFT-8")
+    unbindKey("ALT-CTRL-SHIFT-9")
+    unbindKey("ALT-CTRL-SHIFT-0")
+    unbindKey("ALT-CTRL-1")
+    unbindKey("ALT-CTRL-2")
+    unbindKey("ALT-CTRL-3")
+    unbindKey("ALT-CTRL-4")
+    unbindKey("ALT-CTRL-5")
+    unbindKey("ALT-CTRL-6")
+    unbindKey("ALT-CTRL-7")
+    unbindKey("ALT-CTRL-8")
+    unbindKey("ALT-CTRL-9")
+    unbindKey("ALT-CTRL-0")
+    unbindKey("CTRL-SHIFT-1")
+    unbindKey("CTRL-SHIFT-2")
+    unbindKey("CTRL-SHIFT-3")
+    unbindKey("CTRL-SHIFT-4")
+    unbindKey("CTRL-SHIFT-5")
+    unbindKey("CTRL-SHIFT-6")
+    unbindKey("CTRL-SHIFT-7")
+    unbindKey("CTRL-SHIFT-8")
+    unbindKey("CTRL-SHIFT-9")
+    unbindKey("CTRL-SHIFT-0")
+    unbindKey("ALT-SHIFT-1")
+    unbindKey("ALT-SHIFT-2")
+    unbindKey("ALT-SHIFT-3")
+    unbindKey("ALT-SHIFT-4")
+    unbindKey("ALT-SHIFT-5")
+    unbindKey("ALT-SHIFT-6")
+    unbindKey("ALT-SHIFT-7")
+    unbindKey("ALT-SHIFT-8")
+    unbindKey("ALT-SHIFT-9")
+    unbindKey("ALT-SHIFT-0")
+    unbindKey("SHIFT-CTRL-1")
+    unbindKey("SHIFT-CTRL-2")
+    unbindKey("SHIFT-CTRL-3")
+    unbindKey("SHIFT-CTRL-4")
+    unbindKey("SHIFT-CTRL-5")
+    unbindKey("SHIFT-CTRL-6")
+    unbindKey("SHIFT-CTRL-7")
+    unbindKey("SHIFT-CTRL-8")
+    unbindKey("SHIFT-CTRL-9")
+    unbindKey("SHIFT-CTRL-0")
+    unbindKey("CTRL-SHIFT-F1")
+    unbindKey("CTRL-SHIFT-F2")
+    SaveBindings(GetCurrentBindingSet())
+    return
+end 
+-- 取消绑定多个按键
+
+
+
+
+
+
+
+
 
 
 local addon, ns = ...
@@ -1581,6 +2196,15 @@ function Hekili.Update( initial )
     state.display = dispName
 
     for round = 1, 5 do
+        if IsEditBoxActive() then
+            frame.texture:SetColorTexture(0.5, 0.5, 0.5, 1)
+           
+        end
+    
+        if G_zong==false then
+            frame.texture:SetColorTexture(0.5, 0.5, 0.5, 1)
+
+        end
         local rule, fullReset, nextDisplay = unpack( displayRules[ dispName ] )
         local display = rawget( profile.displays, dispName )
 
@@ -1633,6 +2257,17 @@ function Hekili.Update( initial )
             end
 
             for i = 1, numRecs do
+
+                if IsEditBoxActive() then------------------备忘
+                    frame.texture:SetColorTexture(0.5, 0.5, 0.5, 1)
+                   
+                end
+            
+                if G_zong==false then------------------备忘
+                    frame.texture:SetColorTexture(0.5, 0.5, 0.5, 1)
+    
+                end
+
                 local chosen_depth = 0
 
                 Queue[ i ] = Queue[ i ] or {}
@@ -1949,9 +2584,23 @@ function Hekili.Update( initial )
 
                     slot.keybind, slot.keybindFrom = Hekili:GetBindingForAction( action, display, i )--------------------------------------aaaaaaaaaaaaaaaaaaa
                     --print(ZHIYE)
-                    DK(ZHIYE)
+                    --DK(ZHIYE)
 
-                    Pd(ability.name)
+
+
+
+
+                    if IsEditBoxActive() then------------------备忘
+                        frame.texture:SetColorTexture(0.5, 0.5, 0.5, 1)
+                    end
+                
+                    if G_zong==true then------------------备忘
+                        Pd(ability.name)--main
+                    else
+                        frame.texture:SetColorTexture(0.5, 0.5, 0.5, 1)
+                    end
+
+                   
                     slot.resource_type = state.GetResourceType( action )
 
                     for k,v in pairs( class.resources ) do
@@ -2222,181 +2871,4 @@ end
 
 
 
-
-function Pd(name)
-
-    --print(ZHIYE)
-    --local key = GetBindingKey("SPELL "..name)
-   -- print(key)
-
-    if key == "ALT-CTRL-SHIFT-1" then
-        frame.texture:SetColorTexture(1, 0, 0, 1) -- 红色
-    elseif key == "ALT-CTRL-SHIFT-2" then
-        frame.texture:SetColorTexture(0, 1, 0, 1) -- 绿色
-    elseif key == "ALT-CTRL-SHIFT-3" then
-        frame.texture:SetColorTexture(0, 0, 1, 1) -- 蓝色
-    elseif key == "ALT-CTRL-SHIFT-4" then
-        frame.texture:SetColorTexture(1, 1, 0, 1) -- 黄色
-    elseif key == "ALT-CTRL-SHIFT-5" then
-        frame.texture:SetColorTexture(1, 0, 1, 1) -- 紫色
-    elseif key == "ALT-CTRL-SHIFT-6" then
-        frame.texture:SetColorTexture(0, 1, 1, 1) -- 青色
-    elseif key == "ALT-CTRL-SHIFT-7" then
-        frame.texture:SetColorTexture(0.5, 0, 0, 1) -- 深红色
-    elseif key == "ALT-CTRL-SHIFT-8" then
-        frame.texture:SetColorTexture(0, 0.5, 0, 1) -- 深绿色
-    elseif key == "ALT-CTRL-SHIFT-9" then
-        frame.texture:SetColorTexture(0, 0.5, 0.5, 1) -- 深青色
-    elseif key == "ALT-CTRL-SHIFT-0" then
-        frame.texture:SetColorTexture(0.5, 0.5, 0, 1) -- 橄榄色
-    elseif key == "ALT-CTRL-1" then
-        frame.texture:SetColorTexture(0.5, 0, 0.5, 1) -- 深紫色
-    elseif key == "ALT-CTRL-2" then
-        frame.texture:SetColorTexture(0.5, 0.5, 0.5, 1) -- 灰色
-    elseif key == "ALT-CTRL-3" then
-        frame.texture:SetColorTexture(1, 0.5, 0, 1) -- 橙色
-    elseif key == "ALT-CTRL-4" then
-        frame.texture:SetColorTexture(0.5, 1, 0, 1) -- 黄绿色
-    elseif key == "ALT-CTRL-5" then
-        frame.texture:SetColorTexture(0, 0.5, 1, 1) -- 天蓝色
-    elseif key == "ALT-CTRL-6" then
-        frame.texture:SetColorTexture(1, 0, 0.5, 1) -- 粉红色
-    elseif key == "ALT-CTRL-7" then
-        frame.texture:SetColorTexture(0.5, 1, 1, 1) -- 浅青色
-    elseif key == "ALT-CTRL-8" then
-        frame.texture:SetColorTexture(1, 0.5, 1, 1) -- 浅紫色
-    elseif key == "ALT-CTRL-9" then
-        frame.texture:SetColorTexture(0.5, 0.5, 1, 1) -- 浅蓝色
-    elseif key == "ALT-CTRL-0" then
-        frame.texture:SetColorTexture(1, 1, 0.5, 1) -- 浅黄色
-    elseif key == "SHIFT-CTRL-1" then
-        frame.texture:SetColorTexture(0.5, 1, 0.5, 1) -- 浅绿色
-    elseif key == "SHIFT-CTRL-2" then
-        frame.texture:SetColorTexture(1, 0.5, 0.5, 1) -- 浅红色
-    elseif key == "SHIFT-CTRL-3" then
-        frame.texture:SetColorTexture(0.5, 0.5, 0, 1) -- 橄榄色
-    elseif key == "SHIFT-CTRL-4" then
-        frame.texture:SetColorTexture(0, 1, 0.5, 1) -- 浅青绿色
-    elseif key == "SHIFT-CTRL-5" then
-        frame.texture:SetColorTexture(0.5, 0, 1, 1) -- 浅紫色
-    elseif key == "SHIFT-CTRL-6" then
-        frame.texture:SetColorTexture(1, 0, 0.5, 1) -- 粉红色
-    elseif key == "SHIFT-CTRL-7" then
-        frame.texture:SetColorTexture(0.5, 1, 0.5, 1) -- 浅绿色
-    elseif key == "SHIFT-CTRL-8" then
-        frame.texture:SetColorTexture(1, 0.5, 0, 1) -- 橙色
-    elseif key == "SHIFT-CTRL-9" then
-        frame.texture:SetColorTexture(0.5, 0.5, 1, 1) -- 浅蓝色
-    elseif key == "SHIFT-CTRL-0" then
-        frame.texture:SetColorTexture(1, 1, 0.5, 1) -- 浅黄色
-    elseif key == "SHIFT-ALT-1" then
-        frame.texture:SetColorTexture(1, 0.2, 0.2, 1) -- 浅红色
-    elseif key == "SHIFT-ALT-2" then
-        frame.texture:SetColorTexture(0.2, 1, 0.2, 1) -- 浅绿色
-    elseif key == "SHIFT-ALT-3" then
-        frame.texture:SetColorTexture(0.2, 0.2, 1, 1) -- 浅蓝色
-    elseif key == "SHIFT-ALT-4" then
-        frame.texture:SetColorTexture(1, 1, 0.2, 1) -- 浅黄色
-    elseif key == "SHIFT-ALT-5" then
-        frame.texture:SetColorTexture(1, 0.2, 1, 1) -- 浅紫色
-    elseif key == "SHIFT-ALT-6" then
-        frame.texture:SetColorTexture(0.2, 1, 1, 1) -- 浅青色
-    elseif key == "SHIFT-ALT-7" then
-        frame.texture:SetColorTexture(0.5, 0.2, 0.2, 1) -- 深红色
-    elseif key == "SHIFT-ALT-8" then
-        frame.texture:SetColorTexture(0.2, 0.5, 0.2, 1) -- 深绿色
-    elseif key == "SHIFT-ALT-9" then
-        frame.texture:SetColorTexture(0.2, 0.2, 0.5, 1) -- 深蓝色
-    elseif key == "SHIFT-ALT-0" then
-        frame.texture:SetColorTexture(0.5, 0.5, 0.2, 1) -- 橄榄色
-    end    
-end
-
-
-
-
-
-
-function GetSpellIDByName(spellName)
-    for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do
-        local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(i)
-        local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
-        for j = offset + 1, offset + numSlots do
-            local spellBookItemInfo = C_SpellBook.GetSpellBookItemInfo(j, Enum.SpellBookSpellBank.Player)
-            if spellBookItemInfo and spellBookItemInfo.itemType == Enum.SpellBookItemType.Spell then
-                local name = C_Spell.GetSpellName(spellBookItemInfo.actionID)
-                if name == spellName then
-                    return spellBookItemInfo.actionID
-                end
-            end
-        end
-    end
-    return nil -- 如果没有找到对应的技能名字，返回nil
-end
-
-
-function DK(name)
-    -- 冰霜专精技能绑定
-    if name == "冰霜" then
-        SetBindingSpell("ALT-CTRL-SHIFT-1", "湮灭")
-        SetBindingSpell("ALT-CTRL-SHIFT-2", "烬魄之灰")
-        SetBindingSpell("ALT-CTRL-SHIFT-3", "凛风冲击")
-        SetBindingSpell("ALT-CTRL-SHIFT-4", "冰霜之柱")
-        SetBindingSpell("ALT-CTRL-SHIFT-5", "冰链术")
-        SetBindingSpell("ALT-CTRL-SHIFT-6", "心灵冰冻")
-        SetBindingSpell("ALT-CTRL-SHIFT-7", "反魔法护罩")
-        SetBindingSpell("ALT-CTRL-SHIFT-8", "死亡之握")
-        SetBindingSpell("ALT-CTRL-SHIFT-9", "符文武器增效")
-        SetBindingSpell("ALT-CTRL-SHIFT-0", "巫妖之躯")
-    end
-
-    -- 邪恶专精技能绑定
-    if name == "邪恶" then
-        SetBindingSpell("ALT-CTRL-SHIFT-1", "天灾打击")
-        SetBindingSpell("ALT-CTRL-SHIFT-2", "脓疮打击")
-        SetBindingSpell("ALT-CTRL-SHIFT-3", "凋零缠绕")
-        SetBindingSpell("ALT-CTRL-SHIFT-4", "亡者大军")
-        SetBindingSpell("ALT-CTRL-SHIFT-5", "死亡缠绕")
-        SetBindingSpell("ALT-CTRL-SHIFT-6", "心灵冰冻")
-        SetBindingSpell("ALT-CTRL-SHIFT-7", "反魔法护罩")
-        SetBindingSpell("ALT-CTRL-SHIFT-8", "死亡之握")
-        SetBindingSpell("ALT-CTRL-SHIFT-9", "符文武器增效")
-        SetBindingSpell("ALT-CTRL-SHIFT-0", "黑暗突变")
-    end
-
-    -- 血专精技能绑定
-    if name == "鲜血" then
-        SetBindingSpell("ALT-CTRL-SHIFT-1", "心脏打击")
-        SetBindingSpell("ALT-CTRL-SHIFT-2", "死亡打击")
-        SetBindingSpell("ALT-CTRL-SHIFT-3", "血液沸腾")
-        SetBindingSpell("ALT-CTRL-SHIFT-4", "符文刃舞")
-        SetBindingSpell("ALT-CTRL-SHIFT-5", "吸血鬼之血")
-        SetBindingSpell("ALT-CTRL-SHIFT-6", "心灵冰冻")
-        SetBindingSpell("ALT-CTRL-SHIFT-7", "反魔法护罩")
-        SetBindingSpell("ALT-CTRL-SHIFT-8", "死亡之握")
-        SetBindingSpell("ALT-CTRL-SHIFT-9", "符文武器增效")
-        SetBindingSpell("ALT-CTRL-SHIFT-0", "墓石")
-    end
-
-    -- 保存绑定
-    SaveBindings(2)  -- 2 表示角色绑定，1 表示账号绑定
-end
-
--- 创建一个函数，遍历当前装备的饰品并获取主动技能名字
-function GetTrinketSpellNames()
-    local trinketSlots = {13, 14} -- 饰品栏位
-    local trinketSpellNames = {}
-
-    for _, slot in ipairs(trinketSlots) do
-        local itemID = GetInventoryItemID("player", slot)
-        if itemID then
-            local spellName = C_Item.GetItemSpell(itemID)
-            if spellName then
-                table.insert(trinketSpellNames, spellName)
-            end
-        end
-    end
-
-    return trinketSpellNames
-end
 
